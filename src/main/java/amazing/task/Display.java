@@ -26,6 +26,7 @@ import static amazing.Constants.ABOUT;
 import static amazing.Constants.pause;
 import static amazing.Constants.font;
 import static amazing.Constants.fullscreen;
+import static amazing.Constants.messages;
 import static amazing.Constants.minPause;
 import static amazing.Constants.scale;
 import static amazing.Constants.saveDir;
@@ -61,7 +62,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import amazing.Application.State;
+import amazing.exec.State;
 import amazing.Constants;
 import amazing.generator.Generator;
 import amazing.grid.Cell;
@@ -76,7 +77,7 @@ public class Display<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exte
     private int height, border, created;
     private Window screen;
     private Graphics2D g;
-    private boolean fullscreen;
+    private boolean fullscreen, messages;
     private Font font, msg;
 
     private final Object lock = new Object[0];
@@ -96,10 +97,11 @@ public class Display<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exte
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
         fullscreen = fullscreen();
+        messages = messages();
         font = font();
         msg = Font.decode(Constants.MSG_FONT);
         border = fullscreen ? 0 : (int) (font.getSize2D() / 2f);
-        height = screen.getHeight() - (fullscreen ?  0 : (font.getSize() + (5 * border)));
+        height = screen.getHeight() - (fullscreen ? 0 : (font.getSize() + ((messages ? 5 : 3) * border)));
         created = 0;
     }
 
@@ -118,6 +120,20 @@ public class Display<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exte
 
                 state.reset();
                 state.set(State.THREAD, Thread.currentThread());
+                if (messages) {
+                    state.setStateChangedListener(s -> {
+                        synchronized (lock) {
+                            g.setFont(msg);
+                            g.setColor(g.getBackground().equals(Color.BLACK) ? Color.WHITE : Color.BLACK);
+                            String status = "";
+                            for (String key : State.FLAGS) {
+                                status += Character.toString(s.get(key) ? key.charAt(0) : ' ') + " ";
+                            }
+                            g.clearRect(border, border / 4, g.getFontMetrics().stringWidth(status), msg.getSize() + border / 4);
+                            g.drawString(status, border, border / 4 + msg.getSize());
+                        }
+                    });
+                }
 
                 Builder<O, U, C, W> task = new Builder<>(rows, columns, generator);
                 Renderer<O, U, C, W> renderer = new Renderer<>(size, inset, color, dark);
@@ -143,7 +159,7 @@ public class Display<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exte
                     y = (height - ih) / 2f;
                 }
                 transform.scale(scale, scale);
-                transform.translate(x / scale, (3 * border + y) / scale);
+                transform.translate(x / scale, ((messages ? 3 : 1) * border + y) / scale);
 
                 synchronized (lock) {
                     g.setBackground(dark ? Color.BLACK : Color.WHITE);
@@ -152,8 +168,8 @@ public class Display<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exte
                     if (!fullscreen) {
                         g.setColor(Color.GRAY);
                         g.setStroke(new BasicStroke(3.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
-                        g.drawLine(0, (int) (2.5f * border), screen.getWidth(), (int) (2.5f * border));
-                        g.drawLine(0, (int) (3.5f * border) + height, screen.getWidth(), (int) (3.5f * border) + height);
+                        g.drawLine(0, (int) ((messages ? 2.5f : 0.5f) * border), screen.getWidth(), (int) ((messages ? 2.5f : 0.5f) * border));
+                        g.drawLine(0, (int) ((messages ? 3.5f : 1.5f) * border) + height, screen.getWidth(), (int) ((messages ? 3.5f : 1.5f) * border) + height);
                     }
                     g.drawImage(image, transform, null);
 
@@ -162,9 +178,9 @@ public class Display<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exte
                         g.setFont(font);
                         g.setColor(dark ? Color.WHITE : Color.BLACK);
 
-                        g.drawString(title, border, height + (4 * border) + (fullscreen ? -1 * (border + font.getSize()) : font.getSize()));
+                        g.drawString(title, border, height + ((messages ? 4 : 2) * border) + (fullscreen ? -1 * (border + font.getSize()) : font.getSize()));
                         int bounds = g.getFontMetrics().stringWidth(ABOUT);
-                        g.drawString(ABOUT, screen.getWidth() - border - bounds, height + (4 * border) + font.getSize());
+                        g.drawString(ABOUT, screen.getWidth() - border - bounds, height + ((messages ? 4 : 6) * border) + font.getSize());
                     }
                     if (DEBUG) System.out.printf("> %s\n", title);
                 }
@@ -190,6 +206,7 @@ public class Display<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exte
                     float zoom = ((float) Math.PI / (choose() ? 2f : 4f)) / (2f * steps);
                     float rotate = zoom * (choose() ? -1f : +1f);
                     float move = rotate * 0.25f;
+                    float magnify = (float) Math.pow((double) Math.max(rows, columns) / (Math.min(Math.min(rows, columns), 30d) * 0.667d), 1d / total);
 
                     for (int z = 0; !state.skip() && z < total; z++) {
                         start = Instant.now();
@@ -205,12 +222,11 @@ public class Display<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exte
                             transform.rotate(rotate, image.getWidth() / 2f, image.getHeight() / 2f);
                         }
                         transform.translate(image.getWidth() / -2f, image.getHeight() / -2f);
-                        float magnify = 1f + (zoom * 0.5f);
                         transform.scale(magnify, magnify);
                         transform.translate(image.getWidth() / (magnify * magnify) / 2f, image.getHeight() / (magnify * magnify) / 2f);
                         
                         synchronized (lock) {
-                            g.setClip(0, 3 * border, screen.getWidth(), height);
+                            g.setClip(0, (messages ? 3 : 1) * border, screen.getWidth(), height);
 
                             Point2D[] r = new Point2D[4];
                             r[0] = new Point2D.Float(-1f, -1f);
@@ -232,7 +248,7 @@ public class Display<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exte
                             g.setFont(font);
                             g.setColor(dark ? Color.WHITE : Color.BLACK);
 
-                            if (!fullscreen && (z % 10 == 0)) {
+                            if (messages && (z % 10 == 0)) {
                                 g.setFont(msg);
                                 g.setColor(g.getBackground().equals(Color.BLACK) ? Color.WHITE : Color.BLACK);
                                 int frames = g.getFontMetrics().stringWidth(" 000");

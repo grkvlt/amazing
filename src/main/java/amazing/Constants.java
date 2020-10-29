@@ -46,6 +46,7 @@ public class Constants {
     public static final String FONT_KEY = "amazing.display.font";
     public static final String ZOOM_KEY = "amazing.display.zoom";
     public static final String FULLSCREEN_KEY = "amazing.display.fullscreen";
+    public static final String MESSAGES_KEY = "amazing.display.messages";
 
     /** Default save directory in {@code user.home} */
     public static final String SAVE_DIR = "Amazing";
@@ -61,7 +62,7 @@ public class Constants {
     public static final String COPYRIGHT = "Copyright 2020 by Andrew Donald Kennedy";
 
     /** Version text */
-    public static final String VERSION = "Amazing 0.9.5";
+    public static final String VERSION = "Amazing 0.9.9";
 
     /** About text */
     public static final String ABOUT = VERSION + " / " + COPYRIGHT;
@@ -70,7 +71,7 @@ public class Constants {
     public static final String TIMESTAMP = "yyyyMMdd-HHmmss";
 
     /** Font to use for watermark */
-    public static final String WATERMARK_FONT = "Helvetica-bolditalic-12";
+    public static final String WATERMARK_FONT = "Helvetica-bold-12";
 
     /** Font to use in {@link Viewer} for titles */
     public static final String TITLE_FONT = "Trebuchet MS-bold-16";
@@ -119,6 +120,10 @@ public class Constants {
 
     public static boolean fullscreen() {
         return propertyFlag(FULLSCREEN_KEY, false);
+    }
+
+    public static boolean messages() {
+        return !fullscreen() && propertyFlag(MESSAGES_KEY, false);
     }
 
     public static boolean zoom() {

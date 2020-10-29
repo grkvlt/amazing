@@ -19,6 +19,8 @@
  * 
  * Copyright 2020 by Andrew Donald Kennedy
  */
+package amazing.command;
+
 import static amazing.Constants.DEBUG;
 import static amazing.Constants.fileFormat;
 import static amazing.Constants.saveDir;

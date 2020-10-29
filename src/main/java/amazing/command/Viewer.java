@@ -19,23 +19,25 @@
  * 
  * Copyright 2020 by Andrew Donald Kennedy
  */
+package amazing.command;
+
 import static amazing.Constants.DEBUG;
 
 import java.awt.GraphicsDevice;
 import java.awt.Frame;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-
 import java.util.List;
 import java.util.concurrent.Future;
 
-import amazing.Application;
 import amazing.Constants;
 import amazing.grid.Cell;
 import amazing.grid.OverCell;
 import amazing.grid.UnderCell;
 import amazing.grid.WeaveGrid;
 import amazing.task.Display;
+import amazing.exec.Application;
+import amazing.exec.State;
 
 public class Viewer<O extends OverCell<O, U>, U extends UnderCell<U, O>, C extends Cell<C>, W extends WeaveGrid<O, U>> extends Application {
     private int monitor;
@@ -105,8 +107,8 @@ public class Viewer<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exten
             monitor = Integer.parseInt(argv[0]);
         }
 
-        Viewer<?,?,?,?> viewer = new Viewer<>(monitor);
-        viewer.run();
-        viewer.close();
+        try (Viewer<?,?,?,?> viewer = new Viewer<>(monitor)) {
+            viewer.run();
+        }
     }
 }

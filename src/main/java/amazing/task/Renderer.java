@@ -18,10 +18,11 @@
  * 
  * Copyright 2020 by Andrew Donald Kennedy
  */
-package amazing;
+package amazing.task;
 
 import static amazing.Utils.ratio;
-import static amazing.Utils.title;
+import static amazing.Constants.COPYRIGHT;
+import static amazing.Constants.WATERMARK_FONT;
 import static amazing.Constants.watermark;
 
 import java.awt.Color;
@@ -29,7 +30,6 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.function.Function;
 
@@ -44,7 +44,11 @@ import amazing.grid.WeaveGrid;
  */
 public class Renderer<O extends OverCell<O,U>, U extends UnderCell<U,O>, C extends Cell<C>, W extends WeaveGrid<O,U>> implements Function<W,BufferedImage> {
     // Colours for rendering cell backgrounds
-    public static final int GRAYSCALE = 0, RED = 1, GREEN = 2, BLUE = 3, CYAN = 4, MAGENTA = 5, YELLOW = 6;
+    public static final int GRAYSCALE = 0,
+            RED = 1, GREEN = 2, BLUE = 3,
+            CYAN = 4, MAGENTA = 5, YELLOW = 6,
+            MAGENTA_CYAN = 7, YELLOW_MAGENTA = 8, CYAN_YELLOW = 9,
+            CYAN_RED = 10, MAGENTA_GREEN = 11, YELLOW_BLUE = 12;
 
     private int size, color;
     private float inset;
@@ -62,6 +66,7 @@ public class Renderer<O extends OverCell<O,U>, U extends UnderCell<U,O>, C exten
             int distance = grid.getDistances().get().getDistance(cell);
             float intensity = (float) (grid.getMaximum() - distance) / grid.getMaximum();
             int dark = (int) (255 * intensity);
+            int light = 255 - dark;
             int bright = 128 + (int) (127 * intensity);
 
             switch (color) {
@@ -77,6 +82,18 @@ public class Renderer<O extends OverCell<O,U>, U extends UnderCell<U,O>, C exten
                     return Color.decode(String.format("0x%02x%02x%02x", bright, dark, bright));
                 case YELLOW:
                     return Color.decode(String.format("0x%02x%02x%02x", bright, bright, dark));
+                case MAGENTA_CYAN:
+                    return Color.decode(String.format("0x%02x%02x%02x", light, dark, bright));
+                case YELLOW_MAGENTA:
+                    return Color.decode(String.format("0x%02x%02x%02x", bright, light, dark));
+                case CYAN_YELLOW:
+                    return Color.decode(String.format("0x%02x%02x%02x", dark, bright, light));
+                case CYAN_RED:
+                    return Color.decode(String.format("0x%02x%02x%02x", dark, light, light));
+                case MAGENTA_GREEN:
+                    return Color.decode(String.format("0x%02x%02x%02x", light, dark, light));
+                case YELLOW_BLUE:
+                    return Color.decode(String.format("0x%02x%02x%02x", light, light, dark));
                 default:
                     return Color.decode(String.format("0x%02x%02x%02x", dark, dark, dark));
             }
@@ -182,13 +199,14 @@ public class Renderer<O extends OverCell<O,U>, U extends UnderCell<U,O>, C exten
         }
 
         if (watermark()) {
-            g.setFont(Font.decode("monospaced-bold-" + (int) (0.5f * size)));
-            g.setColor((dark || color == GRAYSCALE) ? Color.WHITE : Color.BLACK);
-            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.8f));
+            Font watermark = Font.decode(WATERMARK_FONT);
+            watermark = watermark.deriveFont(watermark.getStyle(), (1f - inset) * size * 0.5f);
+            g.setFont(watermark);
+            g.setColor(Color.GRAY);
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.95f));
 
-            g.drawString(title(grid), size / 3, h - size / 3);
-            Rectangle2D bounds = g.getFontMetrics().getStringBounds(Constants.COPYRIGHT, g);
-            g.drawString(Constants.COPYRIGHT, w - (size / 3) - bounds.getBounds().width, h - size / 3);
+            int bounds = g.getFontMetrics().stringWidth(COPYRIGHT);
+            g.drawString(COPYRIGHT, w - (size / 3) - bounds - (inset * size * 0.5f), h - (size / 3) - (inset * size * 0.5f));
         }
 
         return image;
