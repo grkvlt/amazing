@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.lang.Runnable;
+import java.util.function.Consumer;
 
 /**
  * The {@link Application} state.
@@ -50,13 +50,13 @@ public class State {
     public static final Set<String> FLAGS = Set.of(QUIT, SAVE, PAUSE, NEXT, WAIT);
 
     private Map<String,Object> state;
-    private Optional<Runnable> listener = Optional.empty();
+    private Optional<Consumer<State>> listener = Optional.empty();
     
     public State() {
         this.state = new HashMap<>();
     }
 
-    public void setStateChangedListener(Runnable listener) {
+    public void setStateChangedListener(Consumer<State> listener) {
         this.listener = Optional.of(listener);
     }
 
@@ -70,7 +70,7 @@ public class State {
 
     public void set(String key, Object value) {
         state.put(key, value);
-        listener.ifPresent(l -> l.run());
+        listener.ifPresent(l -> l.accept(this));
     }
     public void set(String key) { set(key, Boolean.TRUE); }
     public void unset(String key) { set(key, Boolean.FALSE); }
@@ -78,7 +78,6 @@ public class State {
     public void reset() {
         state.clear();
         setCurrentThread();
-        listener.ifPresent(l -> l.run());
     }
 
     public boolean quitting() { return get(QUIT); }

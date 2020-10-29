@@ -121,16 +121,16 @@ public class Display<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exte
 
             state.reset();
             if (messages) {
-                state.setStateChangedListener(() -> {
+                state.setStateChangedListener(s -> {
                     synchronized (lock) {
                         g.setFont(msg);
                         g.setColor(g.getBackground().equals(Color.BLACK) ? Color.WHITE : Color.BLACK);
                         String status = "";
                         for (String key : State.FLAGS) {
-                            status += Character.toString(state.get(key) ? key.charAt(0) : ' ') + " ";
+                            status += Character.toString(s.get(key) ? key.charAt(0) : ' ') + " ";
                         }
-                        if (state.has(State.FILE)) {
-                            status += String.format("%s ", state.file());
+                        if (s.has(State.FILE)) {
+                            status += String.format("%s ", s.file());
                         }
                         g.clearRect(border, border / 4, g.getFontMetrics().stringWidth(status), msg.getSize() + border / 4);
                         g.drawString(status, border, border / 4 + msg.getSize());
