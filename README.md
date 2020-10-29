@@ -1,35 +1,100 @@
-Amazing Maze Generator
-======================
+Amazing Maze Generator 0.9
+==========================
 
-- Copyright 2020 by Andrew Donald Kennedy
-- [APACHE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
+Introduction.
 
-# Mazes Arguments
+# About
 
+TODO.
+
+## Features
+
+TODO.
+
+# Code
+
+Java 8 or better, with no extra libraries, using AWT for display.
+
+## Build
+
+No build system, uses VS Code IDE.
+
+No version control.
+
+## Structure
+
+### Package `amazing.generator`
+
+### Package `amazing.grid`
+
+### Package `amazing.task`
+
+### Package `amazing`
+
+### Applications
+
+#### Mazes
+
+#### Viewer
+
+#### Multi
+
+## Algorithms
+
+TODO.
+
+## Tasks
+
+TODO.
+
+### Contributiong
+
+TODO.
+
+# Usage
+
+## Java Commands and Arguments
+
+```shell
+$ java [...] [-Damazing.*] Mazes [n [filename [generator]]]
+$ java [...] [-Damazing.*] [-Damazing.display.*] Viewer [monitor]
+$ java [...] [-Damazing.*] [-Damazing.display.*] Multi
 ```
-$ Mazes [n [filename [generator]]]
-```
 
-# Viewer Commands
+## Display Keyboard Functions
 
-- `Q` Quit after rendering this maze
-- `S` Save this maze image
-- `N` Skip to the next maze immediately
-- `W` Wait indefinitely after rendering 
+_Multi_ and _Viewer_
+- `Q` Quit after displaying this maze
 - `_` Pause the zoom
 
-# System properties
+_Viewer_ only
+- `S` Save this maze as an image
+- `N` Skip to the next maze immediately
+- `W` Wait indefinitely after displaying 
 
-## Global runtime configuration
+## System properties
+
+### Global runtime configuration
+
 - `amazing.debug`
 - `amazing.seed`
 - `amazing.watermark`
 - `amazing.scale`
-- `amazing.save`
+- `amazing.save.dir`
+- `amazing.save.format`
 
-## Viewer application configuration
-- `amazing.viewer.pause.min`
-- `amazing.viewer.pause.max`
-- `amazing.viewer.font`
-- `amazing.viewer.zoom`
-- `amazing.viewer.fullscreen`
+### Display configuration
+
+- `amazing.display.pause.min`
+- `amazing.display.pause.max`
+- `amazing.display.font`
+- `amazing.display.zoom`
+- `amazing.display.fullscreen`
+
+# References
+
+TODO
+
+---
+Copyright 2020 by Andrew Donald Kennedy;
+Licensed as [APACHE-2.0](http://www.apache.org/licenses/LICENSE-2.0)

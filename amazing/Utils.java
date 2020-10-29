@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -123,6 +124,18 @@ public class Utils {
             String message = String.format("Failed to create log file %s: %s", fileName, ioe.getMessage());
             System.err.println(message);
             throw new RuntimeException(message, ioe);
+        }
+    }
+
+    public static void sleep(int seconds) {
+        sleep(TimeUnit.SECONDS.toMillis(seconds));
+    }
+
+    public static void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ie) {
+            Thread.interrupted();
         }
     }
 

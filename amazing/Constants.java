@@ -26,6 +26,7 @@ import java.awt.Font;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 
 /**
  * Configuration and system property constant definitiomns.
@@ -36,14 +37,15 @@ public class Constants {
     public static final String SEED_KEY = "amazing.seed";
     public static final String WATERMARK_KEY = "amazing.watermark";
     public static final String SCALE_KEY = "amazing.scale";
-    public static final String SAVE_DIR_KEY = "amazing.save";
+    public static final String SAVE_DIR_KEY = "amazing.save.dir";
+    public static final String FILE_FORMAT_KEY = "amazing.save.format";
 
-    // Properties for Viewer application configuration
-    public static final String PAUSE_MIN_KEY = "amazing.viewer.pause.min";
-    public static final String PAUSE_MAX_KEY = "amazing.viewer.pause.max";
-    public static final String FONT_KEY = "amazing.viewer.font";
-    public static final String ZOOM_KEY = "amazing.viewer.zoom";
-    public static final String FULLSCREEN_KEY = "amazing.viewer.fullscreen";
+    // Properties for display configuration
+    public static final String PAUSE_MIN_KEY = "amazing.display.pause.min";
+    public static final String PAUSE_MAX_KEY = "amazing.display.pause.max";
+    public static final String FONT_KEY = "amazing.display.font";
+    public static final String ZOOM_KEY = "amazing.display.zoom";
+    public static final String FULLSCREEN_KEY = "amazing.display.fullscreen";
 
     /** Default save directory in {@code user.home} */
     public static final String SAVE_DIR = "Amazing";
@@ -51,23 +53,30 @@ public class Constants {
     /** Debugging enable */
     public static final Boolean DEBUG = propertyFlag(DEBUG_KEY, false);
 
-    /** Image save formats */
+    // Image save formats
     public static final String PNG = "PNG", JPEG = "JPEG", TIFF = "TIFF";
+    public static final Set<String> FILE_FORMATS = Set.of(PNG, JPEG, TIFF);
     
     /** Copyright text */
     public static final String COPYRIGHT = "Copyright 2020 by Andrew Donald Kennedy";
 
     /** Version text */
-    public static final String VERSION = "Amazing 0.7.6";
+    public static final String VERSION = "Amazing 0.9.3";
+
+    /** About text */
+    public static final String ABOUT = VERSION + " / " + COPYRIGHT;
 
     /** Format for {@link Utils#timestamp()} output */
     public static final String TIMESTAMP = "yyyyMMdd-HHmmss";
 
+    /** Font to use for watermark */
+    public static final String WATERMARK_FONT = "Helvetica-bolditalic-12";
+
     /** Font to use in {@link Viewer} for titles */
-    public static final String TITLE_FONT = "Calibri-bold-14";
+    public static final String TITLE_FONT = "Trebuchet MS-bold-16";
 
     /** Font to use in {@link Viewer} for messages */
-    public static final String MSG_FONT = "monospaced-bold-10";
+    public static final String MSG_FONT = "Andale Mono-bold-12";
 
     /** Shortest pause time (in seconds) for {@link Viewer} */
     public static final Integer MIN_PAUSE = 10;
@@ -126,6 +135,11 @@ public class Constants {
 
     public static int scale(int value) {
         return (int) (value * scale());
+    }
+
+    public static String fileFormat() {
+        String format = System.getProperty(FILE_FORMAT_KEY);
+        return FILE_FORMATS.contains(format) ? format : PNG;
     }
 
     /**

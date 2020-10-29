@@ -37,11 +37,9 @@ import amazing.grid.UnderCell;
 import amazing.grid.WeaveGrid;
 import amazing.task.Display;
 
-public class Viewer<O extends OverCell<O, U>, U extends UnderCell<U, O>, C extends Cell<C>, W extends WeaveGrid<O, U>> extends Application {
-    private int monitor;
-
-    public Viewer(int monitor) {
-        this.monitor = monitor;
+public class Multi<O extends OverCell<O, U>, U extends UnderCell<U, O>, C extends Cell<C>, W extends WeaveGrid<O, U>> extends Application {
+    static {
+        System.setProperty(Constants.FULLSCREEN_KEY, "true");
     }
 
     @Override
@@ -53,18 +51,15 @@ public class Viewer<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exten
                     case 'Q':
                         state.setQuitting();
                         break;
-                    case 's':
-                    case 'S':
-                        state.setSaving();
-                        break;
-                    case 'n':
-                    case 'N':
-                        state.setSkip();
-                        break;
-                    case 'w':
-                    case 'W':
-                        state.setWaiting();
-                        break;
+               }
+            }
+        });
+    }
+
+    public void addPauseListener(Frame root, State state) {
+        root.addKeyListener(new KeyAdapter() {
+            public void keyTyped(KeyEvent event) {
+                switch (event.getKeyChar()) {
                     case ' ':
                         state.setPaused();
                         break;
@@ -75,38 +70,31 @@ public class Viewer<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exten
 
     @Override
     public void run() {
-        State state = new State();
-
         List<GraphicsDevice> gds = Display.monitors();
-        if (monitor < 0 || monitor >= gds.size()) {
-            String error = String.format("Invalid monitor id %d", monitor);
-            System.err.printf("? %s - %d monitors available\n", error, gds.size());
-            throw new RuntimeException(error);
+        Frame root = Display.frame();
+        State parent = new State();
+        addListener(root, parent);
+
+        for (GraphicsDevice gd : gds) {
+            State state = new State(parent);
+            Display<O,U,C,W> display = new Display<>(gd, root, exec, state);
+            addPauseListener(root, state);
+
+            Future<?> task = exec.submit(display);
+            tasks.add(task);
         }
-        GraphicsDevice gd = gds.get(monitor);
 
-        Display<O,U,C,W> display = new Display<>(gd, root, exec, state);
-        addListener(root, state);
-
-        Future<?> task = exec.submit(display);
-        while (!task.isDone());
+        while (tasks.stream().noneMatch(f -> f.isDone()));
     }
 
     public static void main( String[] argv) throws Exception {
         if (DEBUG) {
-            System.out.printf("+ Maze viewer application - %s\n", Constants.VERSION);
+            System.out.printf("+ Multi screen maze viewer application - %s\n", Constants.VERSION);
             System.out.printf("+ %s\n", Constants.COPYRIGHT);
         }
 
-        int monitor = 0;
-
-        // Parse arguments
-        if (argv.length >= 1) {
-            monitor = Integer.parseInt(argv[0]);
-        }
-
-        Viewer<?,?,?,?> viewer = new Viewer<>(monitor);
-        viewer.run();
-        viewer.close();
+        Multi<?,?,?,?> multi = new Multi<>();
+        multi.run();
+        multi.close();
     }
 }
