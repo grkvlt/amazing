@@ -23,21 +23,38 @@ package amazing.exec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 public class Runner {
     public static void main(String[] argv) throws Exception {
-        String command = "Mazes";
+        // Copy arguments
         List<String> args = new ArrayList<>();
         args.addAll(Arrays.asList(argv));
+
+        // Parse arguments
+        String command = "Mazes";
         if (argv.length > 0) {
             command = args.remove(0);
         }
 
-        String className = "amazing.command." + command;
-        Class<?> c = (Class<?>) Class.forName(className);
-        Method main = c.getMethod("main", argv.getClass());
+        try {
+            // Locate command
+            String className = "amazing.command." + command;
+            Class<?> c = (Class<?>) Class.forName(className);
+            Method main = c.getMethod("main", argv.getClass());
+            Supplier<Integer> mods =  () -> main.getModifiers();
 
-        main.invoke(null, new Object[] { args.toArray(new String[0])});
+            if (Objects.isNull(main) || !(Modifier.isPublic(mods.get()) && Modifier.isStatic(mods.get()))) {
+                throw new IllegalArgumentException("Cannot find usable main method for " + command);
+            }
+
+            // Execute command
+            main.invoke(null, new Object[] { args.toArray(new String[0])});
+        } catch (ClassNotFoundException cnfe) {
+            throw new IllegalArgumentException("Cannot load class for " + command, cnfe);
+        }
     }
 }

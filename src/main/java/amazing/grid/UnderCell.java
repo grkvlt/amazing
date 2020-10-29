@@ -23,10 +23,13 @@ package amazing.grid;
 import java.util.Optional;
 
 public class UnderCell<U extends UnderCell<U,O>, O extends OverCell<O,U>> extends OverCell<O,U> {
+    private O over;
 
     @SuppressWarnings("unchecked")
     public UnderCell(O over) {
         super(over.row, over.column, over.grid);
+
+        this.over = over;
 
         if (over.hasHorizontalPassage()) {
             setNorth(over.getNorth());
@@ -46,6 +49,8 @@ public class UnderCell<U extends UnderCell<U,O>, O extends OverCell<O,U>> extend
             link(west.get(), true);
         }
     }
+
+    public O getOver() { return over; }
 
     public boolean hasHorizontalPassage() {
         return east.isPresent() || west.isPresent();

@@ -20,10 +20,11 @@
  */
 package amazing.task;
 
-import static amazing.Utils.ratio;
 import static amazing.Constants.COPYRIGHT;
 import static amazing.Constants.WATERMARK_FONT;
 import static amazing.Constants.watermark;
+import static amazing.Utils.color;
+import static amazing.Utils.ratio;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -70,32 +71,19 @@ public class Renderer<O extends OverCell<O,U>, U extends UnderCell<U,O>, C exten
             int bright = 128 + (int) (127 * intensity);
 
             switch (color) {
-                case RED:
-                    return Color.decode(String.format("0x%02x%02x%02x", bright, dark, dark));
-                case GREEN:
-                    return Color.decode(String.format("0x%02x%02x%02x", dark, bright, dark));
-                case BLUE:
-                    return Color.decode(String.format("0x%02x%02x%02x", dark, dark, bright));
-                case CYAN:
-                    return Color.decode(String.format("0x%02x%02x%02x", dark, bright, bright));
-                case MAGENTA:
-                    return Color.decode(String.format("0x%02x%02x%02x", bright, dark, bright));
-                case YELLOW:
-                    return Color.decode(String.format("0x%02x%02x%02x", bright, bright, dark));
-                case MAGENTA_CYAN:
-                    return Color.decode(String.format("0x%02x%02x%02x", light, dark, bright));
-                case YELLOW_MAGENTA:
-                    return Color.decode(String.format("0x%02x%02x%02x", bright, light, dark));
-                case CYAN_YELLOW:
-                    return Color.decode(String.format("0x%02x%02x%02x", dark, bright, light));
-                case CYAN_RED:
-                    return Color.decode(String.format("0x%02x%02x%02x", dark, light, light));
-                case MAGENTA_GREEN:
-                    return Color.decode(String.format("0x%02x%02x%02x", light, dark, light));
-                case YELLOW_BLUE:
-                    return Color.decode(String.format("0x%02x%02x%02x", light, light, dark));
-                default:
-                    return Color.decode(String.format("0x%02x%02x%02x", dark, dark, dark));
+                case RED:               return color(bright, dark, dark);
+                case GREEN:             return color(dark, bright, dark);
+                case BLUE:              return color(dark, dark, bright);
+                case CYAN:              return color(dark, bright, bright);
+                case MAGENTA:           return color(bright, dark, bright);
+                case YELLOW:            return color(bright, bright, dark);
+                case MAGENTA_CYAN:      return color(light, dark, bright);
+                case YELLOW_MAGENTA:    return color(bright, light, dark);
+                case CYAN_YELLOW:       return color(dark, bright, light);
+                case CYAN_RED:          return color(dark, light, light);
+                case MAGENTA_GREEN:     return color(light, dark, light);
+                case YELLOW_BLUE:       return color(light, light, dark);
+                default:                return color(dark, dark, dark);
             }
         } else return Color.WHITE;
     }

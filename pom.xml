@@ -24,7 +24,7 @@
 
     <artifactId>amazing</artifactId>
     <groupId>amazing</groupId>
-    <version>0.9.9</version>
+    <version>0.9.14</version>
     <packaging>jar</packaging>
 
     <name>Amazing</name>
@@ -32,6 +32,9 @@
         Amazing Maze Generator
     </description>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <build>
         <resources>
             <resource>

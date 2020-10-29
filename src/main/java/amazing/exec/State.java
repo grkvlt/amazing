@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.lang.Runnable;
 
 /**
  * The {@link Application} state.
@@ -42,46 +42,43 @@ public class State {
     public static final String PAUSE = "PAUSE";
     public static final String NEXT = "NEXT";
     public static final String WAIT = "WAIT";
+
     public static final String THREAD = "THREAD";
+    public static final String STEPS = "STEPS";
+    public static final String FILE = "FILE";
+    
     public static final Set<String> FLAGS = Set.of(QUIT, SAVE, PAUSE, NEXT, WAIT);
 
     private Map<String,Object> state;
-    private Optional<State> root = Optional.empty();
-    private Optional<Consumer<State>> listener = Optional.empty();
-
+    private Optional<Runnable> listener = Optional.empty();
     
     public State() {
         this.state = new HashMap<>();
     }
 
-    public State(State root) {
-        this();
-        this.root = Optional.of(root);
-    }
-
-    public void setStateChangedListener(Consumer<State> listener) {
+    public void setStateChangedListener(Runnable listener) {
         this.listener = Optional.of(listener);
     }
 
     public boolean has(String key) { return state.containsKey(key); }
-    public boolean get(String key) { return get(key, Boolean.FALSE); }
+
     @SuppressWarnings("unchecked")
     public <O> O get(String key, O def) {
-        return (O) root
-            .filter(r -> r.has(key))    // if key is set on root
-            .map(r -> r.state)          // then use root map
-            .orElse(state)              // else use this map
-            .getOrDefault(key, def);    // get key from map or return false
+        return (O) state.getOrDefault(key, def);
     }
+    public boolean get(String key) { return get(key, Boolean.FALSE); }
+
     public void set(String key, Object value) {
         state.put(key, value);
-        listener.ifPresent(v -> v.accept(this));
+        listener.ifPresent(l -> l.run());
     }
     public void set(String key) { set(key, Boolean.TRUE); }
     public void unset(String key) { set(key, Boolean.FALSE); }
+
     public void reset() {
         state.clear();
-        root.ifPresent(s -> s.reset());
+        setCurrentThread();
+        listener.ifPresent(l -> l.run());
     }
 
     public boolean quitting() { return get(QUIT); }
@@ -89,7 +86,22 @@ public class State {
     public boolean paused() { return get(PAUSE); }
     public boolean skip() { return get(NEXT); }
     public boolean waiting() { return get(WAIT); }
+
     public Thread thread() { return get(THREAD, (Thread) null); }
+    public int steps() { return get(STEPS, 0); }
+    public String file() { return get(FILE, (String) null); }
+    
+    public void setCurrentThread() {
+        set(THREAD, Thread.currentThread());
+    }
+    
+    public void setSteps(Integer steps) {
+        set(STEPS, steps);
+    }
+    
+    public void setFile(String file) {
+        set(FILE, file);
+    }
     
     public void setQuitting() {
         set(QUIT);
@@ -132,14 +144,10 @@ public class State {
         while (keys.hasNext()) {
             String key = keys.next();
             out.append(key)
-                .append("=")
-                .append(Objects.toString(state.get(key)));
+               .append("=")
+               .append(Objects.toString(state.get(key)));
             if (keys.hasNext()) out.append(", ");
         }
-        root.ifPresent(s -> {
-            out.append(", ")
-                .append(s.toString());
-        });
         out.append(" }");
         return out.toString();
     }

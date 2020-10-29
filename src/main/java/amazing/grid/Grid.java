@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.Iterator;
@@ -93,6 +94,8 @@ public class Grid<C extends Cell<C>> implements Iterable<C> {
     }
 
     public void setDistances(Distances<C> distances) {
+        Objects.requireNonNull(distances);
+        
         this.distances = Optional.of(distances);
         this.farthest = distances.getMax();
         this.maximum = distances.getDistance(farthest);
@@ -109,11 +112,11 @@ public class Grid<C extends Cell<C>> implements Iterable<C> {
         return Optional.of(grid.get(row).get(column));
     }
 
-    public String getContents(C cell) {
+    public Optional<Integer> getContents(C cell) {
         if (distances.isPresent() && distances.get().isSet(cell)) {
             int distance = distances.get().getDistance(cell);
-            return String.format("%02x", distance);
-        } else return "   ";
+            return Optional.of(distance);
+        } else return Optional.empty();
     }
 
     public C getRandom() {

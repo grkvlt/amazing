@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -25,9 +24,9 @@ import static amazing.Constants.DEBUG;
 
 import java.awt.GraphicsDevice;
 import java.awt.Frame;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Future;
 
 import amazing.Constants;
@@ -41,38 +40,10 @@ import amazing.exec.State;
 
 public class Viewer<O extends OverCell<O, U>, U extends UnderCell<U, O>, C extends Cell<C>, W extends WeaveGrid<O, U>> extends Application {
     private int monitor;
+    private Frame root;
 
     public Viewer(int monitor) {
         this.monitor = monitor;
-    }
-
-    @Override
-    public void addListener(Frame root, State state) {
-        root.addKeyListener(new KeyAdapter() {
-            public void keyTyped(KeyEvent event) {
-                switch (event.getKeyChar()) {
-                    case 'q':
-                    case 'Q':
-                        state.setQuitting();
-                        break;
-                    case 's':
-                    case 'S':
-                        state.setSaving();
-                        break;
-                    case 'n':
-                    case 'N':
-                        state.setSkip();
-                        break;
-                    case 'w':
-                    case 'W':
-                        state.setWaiting();
-                        break;
-                    case ' ':
-                        state.setPaused();
-                        break;
-                }
-            }
-        });
     }
 
     @Override
@@ -86,12 +57,19 @@ public class Viewer<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exten
             throw new RuntimeException(error);
         }
         GraphicsDevice gd = gds.get(monitor);
+        root = Display.frame(gd);
 
         Display<O,U,C,W> display = new Display<>(gd, root, exec, state);
         addListener(root, state);
 
         Future<?> task = exec.submit(display);
         while (!task.isDone());
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (Objects.nonNull(root)) root.dispose();
+        super.close();
     }
 
     public static void main( String[] argv) throws Exception {

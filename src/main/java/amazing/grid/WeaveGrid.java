@@ -22,6 +22,8 @@ package amazing.grid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import java.util.Iterator;
 
 @SuppressWarnings("unchecked")
@@ -49,6 +51,16 @@ public class WeaveGrid<O extends OverCell<O,U>, U extends UnderCell<U,O>> extend
     public void tunnelUnder(O over) {
         U cell = (U) new UnderCell<>(over);
         under.add(cell);
+    }
+
+    public void remove(O o) {
+        super.remove(o);
+
+        for (U u : List.copyOf(under)) {
+            if (Objects.equals(o, u.getOver())) {
+                under.remove(u);
+            }
+        }
     }
 
     @Override

@@ -25,9 +25,8 @@ import static amazing.Constants.DEBUG;
 
 import java.awt.GraphicsDevice;
 import java.awt.Frame;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -45,49 +44,31 @@ public class Multi<O extends OverCell<O, U>, U extends UnderCell<U, O>, C extend
         System.setProperty(Constants.FULLSCREEN_KEY, "true");
     }
 
-    @Override
-    public void addListener(Frame root, State state) {
-        root.addKeyListener(new KeyAdapter() {
-            public void keyTyped(KeyEvent event) {
-                switch (event.getKeyChar()) {
-                    case 'q':
-                    case 'Q':
-                        state.setQuitting();
-                        break;
-               }
-            }
-        });
-    }
-
-    public void addPauseListener(Frame root, State state) {
-        root.addKeyListener(new KeyAdapter() {
-            public void keyTyped(KeyEvent event) {
-                switch (event.getKeyChar()) {
-                    case ' ':
-                        state.setPaused();
-                        break;
-                }
-            }
-        });
-    }
+    private List<Frame> frames = new ArrayList<>();
 
     @Override
     public void run() {
         List<GraphicsDevice> gds = Display.monitors();
-        Frame root = Display.frame();
-        State parent = new State();
-        addListener(root, parent);
-
         for (GraphicsDevice gd : gds) {
-            State state = new State(parent);
+            State state = new State();
+            Frame root = Display.frame(gd);
             Display<O,U,C,W> display = new Display<>(gd, root, exec, state);
-            addPauseListener(root, state);
+            addListener(root, state);
+            frames.add(root);
 
             Future<?> task = exec.submit(display);
             tasks.add(task);
         }
 
         while (tasks.stream().noneMatch(f -> f.isDone()));
+    }
+
+    @Override
+    public void close() throws IOException {
+        for (Frame root : frames) {
+            root.dispose();
+        }
+        super.close();
     }
 
     public static void main( String[] argv) throws Exception {

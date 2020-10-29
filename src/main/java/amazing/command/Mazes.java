@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -23,9 +22,9 @@ package amazing.command;
 
 import static amazing.Constants.DEBUG;
 import static amazing.Constants.fileFormat;
-import static amazing.Constants.saveDir;
 import static amazing.Constants.scale;
 import static amazing.Utils.GENERATORS;
+import static amazing.Utils.saveDir;
 import static amazing.Utils.sample;
 import static amazing.Utils.timestamp;
 import static amazing.Utils.save;
@@ -36,9 +35,12 @@ import static amazing.Utils.choose;
 import static amazing.Utils.ratio;
 
 import java.awt.image.BufferedImage;
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -53,7 +55,7 @@ import amazing.task.Renderer;
 import amazing.Constants;
 
 @SuppressWarnings("unchecked")
-public class Mazes<O extends OverCell<O, U>, U extends UnderCell<U, O>, C extends Cell<C>, W extends WeaveGrid<O, U>> {
+public class Mazes<O extends OverCell<O, U>, U extends UnderCell<U, O>, C extends Cell<C>, W extends WeaveGrid<O, U>> implements Closeable, Callable<Void> {
     private ExecutorService exec = Executors.newSingleThreadExecutor();
     private Optional<PrintWriter> log = Optional.empty();
     private String fileName;
@@ -66,7 +68,8 @@ public class Mazes<O extends OverCell<O, U>, U extends UnderCell<U, O>, C extend
         this.generator = generator;
     }
 
-    public void run() throws Exception {
+    @Override
+    public Void call() throws Exception {
         if (n > 1) log = Optional.of(logger(String.format("index-%s.txt", timestamp())));
 
         for (int i = 0; i < n; i++) {
@@ -100,9 +103,15 @@ public class Mazes<O extends OverCell<O, U>, U extends UnderCell<U, O>, C extend
                 System.out.print(i == (n - 1) ? "\n" : i % 10 == 0 ? Integer.toString((i / 10) % 10) : ".");
             }
         }
+        
+        return (Void) null;
+    }
 
-        exec.shutdown();
+    @Override
+    public void close() throws IOException {
+        exec.shutdownNow();
         log.ifPresent(l -> l.close());
+        System.exit(0);
     }
 
     public static void main(String[] argv) throws Exception {
@@ -124,13 +133,20 @@ public class Mazes<O extends OverCell<O, U>, U extends UnderCell<U, O>, C extend
         }
         if (argv.length >= 3) {
             String className = "amazing.generator." + argv[2];
-            Class<? extends Generator<?>> c = (Class<? extends Generator<?>>) Class.forName(className);
-            Constructor<? extends Generator<?>> ctor = c.getConstructor();
-            generator = ctor.newInstance();
-            if (DEBUG) System.out.printf("- Generator %s loaded\n", generator.getName());
+            try {
+                Class<? extends Generator<?>> c = (Class<? extends Generator<?>>) Class.forName(className);
+                Constructor<? extends Generator<?>> ctor = c.getConstructor();
+                generator = ctor.newInstance();
+                if (DEBUG) System.out.printf("- Generator %s loaded\n", generator.getName());
+            } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException e) {
+                String message = "Cannot load generator " + argv[2];
+                if (DEBUG) System.err.printf("! %s: %s\n", message, e.getMessage());
+                throw new IllegalArgumentException(message, e);
+            }
         }
 
-        Mazes<?,?,?,?> mazes = new Mazes<>(n, fileName, generator);
-        mazes.run();
+        try (Mazes<?,?,?,?> mazes = new Mazes<>(n, fileName, generator)) {
+            mazes.call();
+        }
     }
 }

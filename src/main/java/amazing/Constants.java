@@ -23,9 +23,6 @@ package amazing;
 import static amazing.Utils.random;
 
 import java.awt.Font;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Set;
 
 /**
@@ -62,7 +59,7 @@ public class Constants {
     public static final String COPYRIGHT = "Copyright 2020 by Andrew Donald Kennedy";
 
     /** Version text */
-    public static final String VERSION = "Amazing 0.9.9";
+    public static final String VERSION = "Amazing 0.9.14";
 
     /** About text */
     public static final String ABOUT = VERSION + " / " + COPYRIGHT;
@@ -74,10 +71,10 @@ public class Constants {
     public static final String WATERMARK_FONT = "Helvetica-bold-12";
 
     /** Font to use in {@link Viewer} for titles */
-    public static final String TITLE_FONT = "Trebuchet MS-bold-16";
+    public static final String TITLE_FONT = "Trebuchet MS-bold-14";
 
     /** Font to use in {@link Viewer} for messages */
-    public static final String MSG_FONT = "Andale Mono-bold-12";
+    public static final String MSG_FONT = "Andale Mono-plain-12";
 
     /** Shortest pause time (in seconds) for {@link Viewer} */
     public static final Integer MIN_PAUSE = 10;
@@ -123,7 +120,7 @@ public class Constants {
     }
 
     public static boolean messages() {
-        return !fullscreen() && propertyFlag(MESSAGES_KEY, false);
+        return !fullscreen() && (DEBUG || propertyFlag(MESSAGES_KEY, false));
     }
 
     public static boolean zoom() {
@@ -148,35 +145,5 @@ public class Constants {
             throw new RuntimeException(String.format("Invalid file format %s", format));
         }
         return format;
-    }
-
-    /**
-     * The directory to save files and images to.
-     * 
-     * The default is to use the directory named {@link #SAVE_DIR} in the
-     * {@code user.home} directory. This will be created if it does
-     * not exist. If the {@link #SAVE_DIR_KEY} property is set, this will
-     * be used in preference, and will also be treated as a sub-directory
-     * of the home directory unless an absolute path is given.
-     * 
-     * @return The name of the directory to use
-     */
-    public static String saveDir() {
-        String home = System.getProperty("user.home");
-        String save = System.getProperty(SAVE_DIR_KEY, SAVE_DIR);
-        
-        Path dir = Path.of(save).isAbsolute() ? Path.of(save) : Path.of(home, save);
-
-        if (Files.notExists(dir)) {
-            try {
-                Files.createDirectories(dir);
-            } catch (IOException ioe) {
-                String message = String.format("Failed to create %s directory: %s", dir, ioe.getMessage());
-                System.err.println(message);
-                throw new RuntimeException(message, ioe);
-            }
-        }
-
-        return dir.toString();
     }
 }

@@ -21,8 +21,12 @@
 package amazing;
 
 import static amazing.Constants.SEED_KEY;
+import static amazing.Constants.SAVE_DIR;
+import static amazing.Constants.SAVE_DIR_KEY;
 import static amazing.Constants.TIMESTAMP;
 
+import java.awt.Color;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.List;
@@ -119,7 +123,7 @@ public class Utils {
 
     public static final PrintWriter logger(String fileName) {
         try {
-            return new PrintWriter(new FileWriter(new File(Constants.saveDir(), fileName)));
+            return new PrintWriter(new FileWriter(new File(saveDir(), fileName)));
         } catch (IOException ioe) {
             String message = String.format("Failed to create log file %s: %s", fileName, ioe.getMessage());
             System.err.println(message);
@@ -172,6 +176,36 @@ public class Utils {
         return file;
     }
 
+    /**
+     * The directory to save files and images to.
+     * 
+     * The default is to use the directory named {@link #SAVE_DIR} in the
+     * {@code user.home} directory. This will be created if it does
+     * not exist. If the {@link #SAVE_DIR_KEY} property is set, this will
+     * be used in preference, and will also be treated as a sub-directory
+     * of the home directory unless an absolute path is given.
+     * 
+     * @return The name of the directory to use
+     */
+    public static String saveDir() {
+        String home = System.getProperty("user.home");
+        String save = System.getProperty(SAVE_DIR_KEY, SAVE_DIR);
+        
+        Path dir = Path.of(save).isAbsolute() ? Path.of(save) : Path.of(home, save);
+
+        if (Files.notExists(dir)) {
+            try {
+                Files.createDirectories(dir);
+            } catch (IOException ioe) {
+                String message = String.format("Failed to create %s directory: %s", dir, ioe.getMessage());
+                System.err.println(message);
+                throw new RuntimeException(message, ioe);
+            }
+        }
+
+        return dir.toString();
+    }
+
     public static String title(Grid<?> grid) {
         return String.format("%s / (%dx%d) %s%s%s%s%s",
                 grid.getMetadataString(Grid.GENERATOR),
@@ -181,5 +215,13 @@ public class Utils {
                 grid.hasMetadata(Grid.CULLED) ? String.format("/ cull-%.1f*%d ", grid.getCulling(), grid.getMetadataInteger(Grid.CULLED)) : "",
                 grid.hasMetadata(Grid.BRAIDED) ? String.format("/ braid~%.1f ", grid.getBraiding()) : "",
                 grid.getDeadends().isEmpty() ? "" : String.format("/ [%d]", grid.getDeadends().size()));
+    }
+
+    public static Color color(int r, int g, int b) {
+        return Color.decode(String.format("0x%02x%02x%02x", r, g, b));
+    }
+
+    public static void beep() {
+        Toolkit.getDefaultToolkit().beep();
     }
 }

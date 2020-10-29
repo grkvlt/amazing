@@ -27,10 +27,18 @@ import amazing.grid.Grid;
 
 /**
  * Abstract parent class for maze generation algorithms.
- * 
- * @see Consumer#accept(Object)
  */
 public abstract class Generator<C extends Cell<C>> implements Consumer<Grid<C>> {
+    /**
+     * Generates a maze on the supplied {@link Grid grid}.
+     * 
+     * @param grid The grid to generate the maze on. This is modified in place,
+     * rather than returning a new grid.
+     * 
+     * @see Consumer#accept(Object)
+     */
+    @Override
+    public abstract void accept(Grid<C> grid);
    
     /**
      * Returns the name of the maze generator algorithm.
