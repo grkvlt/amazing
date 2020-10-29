@@ -45,7 +45,8 @@ import amazing.task.Display;
 */
 public abstract class Application implements Runnable, Closeable {
     static {
-        System.setProperty(Constants.WATERMARK_KEY, "false");
+        if (!System.getProperties().containsKey(Constants.WATERMARK_KEY))
+            System.setProperty(Constants.WATERMARK_KEY, "false");
     }
 
     /**
@@ -106,7 +107,7 @@ public abstract class Application implements Runnable, Closeable {
             unset(PAUSE);
 
             Thread thread = thread();
-            thread.interrupt();
+            if (thread != null) thread.interrupt();
         }
         
         public void setSaving() {

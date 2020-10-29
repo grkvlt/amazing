@@ -93,6 +93,7 @@ public class Display<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exte
         g = (Graphics2D) screen.getGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
         fullscreen = fullscreen();
         font = font();
@@ -113,6 +114,7 @@ public class Display<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exte
                 int size = scale(random(15, 30));
                 float inset = choose(20) ? 0f : 0.1f + ratio() / 5f;
                 boolean dark = choose(10);
+                g.setRenderingHint(RenderingHints.KEY_TEXT_LCD_CONTRAST,  dark ? 250 : 100);
 
                 state.reset();
                 state.set(State.THREAD, Thread.currentThread());

@@ -61,7 +61,7 @@ public class Constants {
     public static final String COPYRIGHT = "Copyright 2020 by Andrew Donald Kennedy";
 
     /** Version text */
-    public static final String VERSION = "Amazing 0.9.3";
+    public static final String VERSION = "Amazing 0.9.5";
 
     /** About text */
     public static final String ABOUT = VERSION + " / " + COPYRIGHT;
@@ -138,8 +138,11 @@ public class Constants {
     }
 
     public static String fileFormat() {
-        String format = System.getProperty(FILE_FORMAT_KEY);
-        return FILE_FORMATS.contains(format) ? format : PNG;
+        String format = System.getProperty(FILE_FORMAT_KEY, PNG);
+        if (!FILE_FORMATS.contains(format)) {
+            throw new RuntimeException(String.format("Invalid file format %s", format));
+        }
+        return format;
     }
 
     /**
