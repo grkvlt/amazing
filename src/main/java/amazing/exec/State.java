@@ -57,18 +57,22 @@ public class State {
     }
 
     public void setStateChangedListener(Consumer<State> listener) {
+        Objects.requireNonNull(listener);
         this.listener = Optional.of(listener);
     }
 
-    public boolean has(String key) { return state.containsKey(key); }
+    public boolean has(String key) {
+        Objects.requireNonNull(key);
+        return state.containsKey(key);
+    }
 
     @SuppressWarnings("unchecked")
     public <O> O get(String key, O def) {
         return (O) state.getOrDefault(key, def);
     }
     public boolean get(String key) { return get(key, Boolean.FALSE); }
-
     public void set(String key, Object value) {
+        Objects.requireNonNull(key);
         state.put(key, value);
         listener.ifPresent(l -> l.accept(this));
     }
@@ -117,7 +121,7 @@ public class State {
     }
     
     public void setPaused() {
-        set(PAUSE, !get(PAUSE));
+        set(PAUSE, !paused());
     }
     
     public void setSkip() {
