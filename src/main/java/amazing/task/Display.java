@@ -105,11 +105,34 @@ public class Display<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exte
         border = fullscreen ? 0 : (int) (font.getSize2D() / 2f);
         height = screen.getHeight() - (fullscreen ? 0 : (font.getSize() + ((messages ? 5 : 3) * border)));
         created = 0;
+
+        if (messages) {
+            state.setStateChangedListener(s -> {
+                synchronized (lock) {
+                    g.setFont(msg);
+                    g.setColor(g.getBackground().equals(Color.BLACK) ? Color.WHITE : Color.BLACK);
+                    String status = "";
+                    for (String key : State.FLAGS) {
+                        status += Character.toString(s.get(key) ? key.charAt(0) : ' ') + " ";
+                    }
+                    if (s.has(State.FILE)) {
+                        status += String.format("%s ", s.file());
+                    }
+                    g.clearRect(border, border / 4, g.getFontMetrics().stringWidth(status), msg.getSize() + border / 4);
+                    g.drawString(status, border, border / 4 + msg.getSize());
+                }
+            });
+        }
     }
 
     @SuppressWarnings("unchecked")
     public Void call() throws Exception {
         do {
+            Instant start = Instant.now();
+
+            state.reset();
+
+            // Randomize generator and its parameters
             Generator<C> generator = (Generator<C>) sample(GENERATORS);
             int color = random(12);
             int rows = scale(random(20, 80));
@@ -117,32 +140,12 @@ public class Display<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exte
             int size = scale(random(15, 30));
             float inset = choose(20) ? 0f : 0.1f + ratio() / 5f;
             boolean dark = choose(10);
-            g.setRenderingHint(RenderingHints.KEY_TEXT_LCD_CONTRAST, dark ? 250 : 100);
 
-            state.reset();
-            if (messages) {
-                state.setStateChangedListener(s -> {
-                    synchronized (lock) {
-                        g.setFont(msg);
-                        g.setColor(g.getBackground().equals(Color.BLACK) ? Color.WHITE : Color.BLACK);
-                        String status = "";
-                        for (String key : State.FLAGS) {
-                            status += Character.toString(s.get(key) ? key.charAt(0) : ' ') + " ";
-                        }
-                        if (s.has(State.FILE)) {
-                            status += String.format("%s ", s.file());
-                        }
-                        g.clearRect(border, border / 4, g.getFontMetrics().stringWidth(status), msg.getSize() + border / 4);
-                        g.drawString(status, border, border / 4 + msg.getSize());
-                    }
-                });
-            }
-
-            Builder<O, U, C, W> task = new Builder<>(rows, columns, generator);
+            // Create the build and render tasks
+            Builder<O, U, C, W> builder = new Builder<>(rows, columns, generator);
             Renderer<O, U, C, W> renderer = new Renderer<>(size, inset, color, dark);
 
-            Instant start = Instant.now();
-            Future<W> result = exec.submit(task);
+            Future<W> result = exec.submit(builder);
             W grid = result.get();
             BufferedImage image = renderer.apply(grid);
             created++;
@@ -165,6 +168,7 @@ public class Display<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exte
             transform.translate(x / scale, ((messages ? 3 : 1) * border + y) / scale);
 
             synchronized (lock) {
+                g.setRenderingHint(RenderingHints.KEY_TEXT_LCD_CONTRAST, dark ? 250 : 100);
                 g.setBackground(dark ? Color.BLACK : Color.WHITE);
                 g.clearRect(0, 0, screen.getWidth(), screen.getHeight());
 
