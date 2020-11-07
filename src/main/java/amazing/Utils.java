@@ -206,6 +206,22 @@ public class Utils {
         return dir.toString();
     }
 
+    /**
+     * Look up a boolean {@code key} in the {@link System#getProperties() system properties}.
+     * 
+     * Returns {@literal true} if the flag exists and has no value, otherwise uses the standard
+     * {@link System#getProperty(String, String)} method to get the value (using {@code def} if the
+     * flag is not present) and returns it as a boolean.
+     * 
+     * @param flag The name of the flag propoerty to look up
+     * @param def The default value if the flag is not present
+     */
+    public static boolean propertyFlag(String flag, boolean def) {
+        if (System.getProperties().containsKey(flag) && System.getProperty(flag).isEmpty()) {
+            return true;
+        } else return Boolean.parseBoolean(System.getProperty(flag, Boolean.toString(def)));
+    }
+
     public static String title(Grid<?> grid) {
         return String.format("%s / (%dx%d) %s%s%s%s%s",
                 grid.getMetadataString(Grid.GENERATOR),
