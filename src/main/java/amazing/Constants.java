@@ -85,6 +85,12 @@ public class Constants {
     /** Longest pause time (in seconds) for {@link Viewer} */
     public static final Integer MAX_PAUSE = 20;
 
+    /** System properties */
+    public interface Properties {
+        String OS_NAME = System.getProperty("os.name");
+        String USER_HOME = System.getProperty("user.home");
+    }
+    
     /** Colours */
     public interface Colors {
         int GRAYSCALE = 0;
