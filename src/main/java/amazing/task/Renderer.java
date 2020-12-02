@@ -25,6 +25,7 @@ import static amazing.Constants.WATERMARK_FONT;
 import static amazing.Constants.watermark;
 import static amazing.Utils.color;
 import static amazing.Utils.ratio;
+import static amazing.Constants.Colors;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -44,13 +45,6 @@ import amazing.grid.WeaveGrid;
  * the specified sizes and color.
  */
 public class Renderer<O extends OverCell<O,U>, U extends UnderCell<U,O>, C extends Cell<C>, W extends WeaveGrid<O,U>> implements Function<W,BufferedImage> {
-    // Colours for rendering cell backgrounds
-    public static final int GRAYSCALE = 0,
-            RED = 1, GREEN = 2, BLUE = 3,
-            CYAN = 4, MAGENTA = 5, YELLOW = 6,
-            MAGENTA_CYAN = 7, YELLOW_MAGENTA = 8, CYAN_YELLOW = 9,
-            CYAN_RED = 10, MAGENTA_GREEN = 11, YELLOW_BLUE = 12;
-
     private int size, color;
     private float inset;
     private boolean dark;
@@ -71,19 +65,19 @@ public class Renderer<O extends OverCell<O,U>, U extends UnderCell<U,O>, C exten
             int bright = 128 + (int) (127 * intensity);
 
             switch (color) {
-                case RED:               return color(bright, dark, dark);
-                case GREEN:             return color(dark, bright, dark);
-                case BLUE:              return color(dark, dark, bright);
-                case CYAN:              return color(dark, bright, bright);
-                case MAGENTA:           return color(bright, dark, bright);
-                case YELLOW:            return color(bright, bright, dark);
-                case MAGENTA_CYAN:      return color(light, dark, bright);
-                case YELLOW_MAGENTA:    return color(bright, light, dark);
-                case CYAN_YELLOW:       return color(dark, bright, light);
-                case CYAN_RED:          return color(dark, light, light);
-                case MAGENTA_GREEN:     return color(light, dark, light);
-                case YELLOW_BLUE:       return color(light, light, dark);
-                default:                return color(dark, dark, dark);
+                case Colors.RED:            return color(bright, dark, dark);
+                case Colors.GREEN:          return color(dark, bright, dark);
+                case Colors.BLUE:           return color(dark, dark, bright);
+                case Colors.CYAN:           return color(dark, bright, bright);
+                case Colors.MAGENTA:        return color(bright, dark, bright);
+                case Colors.YELLOW:         return color(bright, bright, dark);
+                case Colors.MAGENTA_CYAN:   return color(light, dark, bright);
+                case Colors.YELLOW_MAGENTA: return color(bright, light, dark);
+                case Colors.CYAN_YELLOW:    return color(dark, bright, light);
+                case Colors.CYAN_RED:       return color(dark, light, light);
+                case Colors.MAGENTA_GREEN:  return color(light, dark, light);
+                case Colors.YELLOW_BLUE:    return color(light, light, dark);
+                default:                    return color(dark, dark, dark);
             }
         } else return Color.WHITE;
     }

@@ -24,6 +24,8 @@ import static amazing.Utils.propertyFlag;
 import static amazing.Utils.random;
 
 import java.awt.Font;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -82,6 +84,45 @@ public class Constants {
 
     /** Longest pause time (in seconds) for {@link Viewer} */
     public static final Integer MAX_PAUSE = 20;
+
+    /** Colours */
+    public interface Colors {
+        int GRAYSCALE = 0;
+        int RED = 1;
+        int GREEN = 2;
+        int BLUE = 3;
+        int CYAN = 4;
+        int MAGENTA = 5;
+        int YELLOW = 6;
+        int MAGENTA_CYAN = 7;
+        int YELLOW_MAGENTA = 8;
+        int CYAN_YELLOW = 9;
+        int CYAN_RED = 10;
+        int MAGENTA_GREEN = 11;
+        int YELLOW_BLUE = 12;
+
+        List<Integer> ALL = Arrays.asList(
+            GRAYSCALE,
+            RED,
+            GREEN,
+            BLUE,
+            CYAN,
+            MAGENTA,
+            YELLOW,
+            MAGENTA_CYAN,
+            YELLOW_MAGENTA,
+            CYAN_YELLOW,
+            CYAN_RED,
+            MAGENTA_GREEN,
+            YELLOW_BLUE
+        );
+
+        int MAX = ALL.size();
+
+        public static int choose() {
+            return random(MAX);
+        }
+    }
 
     public static Font font() {
         String name = System.getProperty(FONT_KEY, TITLE_FONT);

@@ -65,6 +65,7 @@ import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
 
 import amazing.Constants;
+import amazing.Constants.Colors;
 import amazing.exec.State;
 import amazing.generator.Generator;
 import amazing.grid.Cell;
@@ -134,7 +135,7 @@ public class Display<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exte
 
             // Randomize generator and its parameters
             Generator<C> generator = (Generator<C>) sample(GENERATORS);
-            int color = random(12);
+            int color = Colors.choose();
             int rows = scale(random(20, 80));
             int columns = scale(random(40, 160));
             int size = scale(random(15, 30));

@@ -53,6 +53,7 @@ import amazing.grid.WeaveGrid;
 import amazing.task.Builder;
 import amazing.task.Renderer;
 import amazing.Constants;
+import amazing.Constants.Colors;
 
 @SuppressWarnings("unchecked")
 public class Mazes<O extends OverCell<O, U>, U extends UnderCell<U, O>, C extends Cell<C>, W extends WeaveGrid<O, U>> implements Closeable, Callable<Void> {
@@ -75,7 +76,7 @@ public class Mazes<O extends OverCell<O, U>, U extends UnderCell<U, O>, C extend
         for (int i = 0; i < n; i++) {
             int rows = 50, columns = 80, size = 20;
             float inset = 0.1f;
-            int color = random(6);
+            int color = Colors.choose();
             boolean dark = choose(10);
 
             if (i > 0) {
