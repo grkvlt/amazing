@@ -65,7 +65,7 @@ public class Constants {
     public static final String COPYRIGHT = "Copyright 2020 by Andrew Donald Kennedy";
 
     /** Version text */
-    public static final String VERSION = "Amazing 0.9.14";
+    public static final String VERSION = "Amazing 0.9.15";
 
     /** About text */
     public static final String ABOUT = VERSION + " / " + COPYRIGHT;
@@ -87,7 +87,7 @@ public class Constants {
 
     /** Longest pause time (in seconds) for {@link Viewer} */
     public static final Integer MAX_PAUSE = 20;
-
+    
     /** System properties */
     public interface Properties {
         String OS_NAME = System.getProperty("os.name");
