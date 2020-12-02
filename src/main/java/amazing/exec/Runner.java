@@ -20,6 +20,13 @@
  */
 package amazing.exec;
 
+import static amazing.Utils.os;
+import static amazing.Constants.ICON_FILE;
+
+import com.apple.eawt.Application;
+
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +34,10 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+
+import javax.imageio.ImageIO;
+
+import amazing.Constants.Vendors;
 
 public class Runner {
     public static void main(String[] argv) throws Exception {
@@ -45,10 +56,21 @@ public class Runner {
             String className = "amazing.command." + command;
             Class<?> c = (Class<?>) Class.forName(className);
             Method main = c.getMethod("main", argv.getClass());
-            Supplier<Integer> mods =  () -> main.getModifiers();
+            Supplier<Integer> mods = () -> main.getModifiers();
 
             if (Objects.isNull(main) || !(Modifier.isPublic(mods.get()) && Modifier.isStatic(mods.get()))) {
                 throw new IllegalArgumentException("Cannot find usable main method for " + command);
+            }
+
+            // Set icon
+            switch (os()) {
+                case Vendors.AAPL:
+                    try (InputStream icon = Runner.class.getResourceAsStream(ICON_FILE)) {
+                        BufferedImage image = ImageIO.read(icon);
+                        Application.getApplication().setDockIconImage(image);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Unable to load icon file", e);
+                    }
             }
 
             // Execute command

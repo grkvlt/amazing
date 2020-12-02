@@ -52,7 +52,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 import java.awt.image.BufferedImage;
-import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -61,8 +60,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
-import javax.imageio.ImageIO;
 
 import amazing.Constants;
 import amazing.Constants.Colors;
@@ -306,11 +303,6 @@ public class Display<O extends OverCell<O, U>, U extends UnderCell<U, O>, C exte
     public static Frame frame(GraphicsDevice gd) {
         Frame root = new Frame(gd.getDefaultConfiguration());
         root.setName(Constants.VERSION);
-        try (InputStream icon = Display.class.getResourceAsStream("/icon.png")) {
-            root.setIconImage(ImageIO.read(icon));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
         root.enableInputMethods(true);
         root.setVisible(true);
         return root;

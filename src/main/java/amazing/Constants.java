@@ -51,6 +51,9 @@ public class Constants {
     /** Default save directory in {@code user.home} */
     public static final String SAVE_DIR = "Amazing";
 
+    /** Application  icon resource path */
+    public static final String ICON_FILE = "/icon.png";
+
     /** Debugging enable */
     public static final Boolean DEBUG = propertyFlag(DEBUG_KEY, false);
 
