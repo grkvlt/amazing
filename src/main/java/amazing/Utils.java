@@ -30,6 +30,7 @@ import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -45,6 +46,8 @@ import java.nio.file.Path;
 
 import javax.imageio.ImageIO;
 
+import amazing.Constants.Vendors;
+import amazing.Constants.Properties;
 import amazing.generator.AldousBroder;
 import amazing.generator.BinaryTree;
 import amazing.generator.Generator;
@@ -188,7 +191,7 @@ public class Utils {
      * @return The name of the directory to use
      */
     public static String saveDir() {
-        String home = System.getProperty("user.home");
+        String home = Properties.USER_HOME;
         String save = System.getProperty(SAVE_DIR_KEY, SAVE_DIR);
         
         Path dir = Path.of(save).isAbsolute() ? Path.of(save) : Path.of(home, save);
@@ -204,6 +207,30 @@ public class Utils {
         }
 
         return dir.toString();
+    }
+
+    /**
+     * Determine the Operating System being used.
+     *
+     * @see Constants.Vendors
+     * @see Constants.Properties
+     */
+    public static int os() {
+        String name = Properties.OS_NAME.toLowerCase(Locale.UK);
+
+        if (name.contains("win")) {
+            return Vendors.MSFT;
+        } else if (name.contains("nix") || name.contains("nux") || name.contains("aix")) {
+            return Vendors.RHAT;
+        } else if (name.contains("sunos")) {
+            return Vendors.SUNW;
+        } else if (name.contains("mac")) {
+            return Vendors.AAPL;
+        } else {
+            String msg = String.format("Cannot determine operating system for %s", name);
+            System.err.println(msg);
+            throw new IllegalStateException(msg);
+        }
     }
 
     /**

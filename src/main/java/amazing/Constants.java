@@ -91,6 +91,14 @@ public class Constants {
         String USER_HOME = System.getProperty("user.home");
     }
     
+    /** Operating System vendors */
+    public interface Vendors {
+        int AAPL = 0;
+        int MSFT = 1;
+        int SUNW = 2;
+        int RHAT = 3;
+    }
+
     /** Colours */
     public interface Colors {
         int GRAYSCALE = 0;
